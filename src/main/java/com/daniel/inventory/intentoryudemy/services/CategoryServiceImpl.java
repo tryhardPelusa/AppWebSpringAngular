@@ -110,4 +110,20 @@ public class CategoryServiceImpl implements CategoryService {
         }
         return new ResponseEntity<CategoryResponseRest>(response, HttpStatus.OK);
     }
+
+    @Override
+    @Transactional
+    public ResponseEntity<CategoryResponseRest> deleteByID(Long id) {
+        CategoryResponseRest response = new CategoryResponseRest();
+        try {
+            categoryDao.deleteById(id);
+            response.setMetadata("Todo Perfecto", "00", "Respuesta exitosa");
+
+        } catch (Exception e) {
+            response.setMetadata("Algo salió mal", "-1", "Error a consultar");
+            e.getStackTrace();
+            return new ResponseEntity<CategoryResponseRest>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<CategoryResponseRest>(response, HttpStatus.OK);
+    }
 }
