@@ -10,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements CategoryService{
@@ -28,7 +30,31 @@ public class CategoryServiceImpl implements CategoryService{
             response.setMetadata("Todo Perfecto", "00", "Respuesta exitosa");
         }catch (Exception e){
             response.setMetadata("Algo salió mal", "-1", "Error a consultar");
+            e.getStackTrace();
+            return new ResponseEntity<CategoryResponseRest>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<CategoryResponseRest>(response, HttpStatus.OK);
+    }
 
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseEntity<CategoryResponseRest> searchByID(Long id) {
+        CategoryResponseRest response = new CategoryResponseRest();
+        List<Category> list = new ArrayList<>();
+        try {
+            Optional<Category> category = categoryDao.findById(id);
+            if (category.isPresent()) {
+                list.add(category.get());
+                response.getCategoryResponse().setCategory(list);
+                response.setMetadata("Todo Perfecto", "00", "Respuesta exitosa");
+            }else {
+                response.setMetadata("Algo salió mal", "01", "Categooria no encontrada");
+                return new ResponseEntity<CategoryResponseRest>(response, HttpStatus.NOT_FOUND);
+            }
+
+        }catch (Exception e){
+            response.setMetadata("Algo salió mal", "-1", "Error a consultar");
+            e.getStackTrace();
             return new ResponseEntity<CategoryResponseRest>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<CategoryResponseRest>(response, HttpStatus.OK);
